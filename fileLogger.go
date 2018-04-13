@@ -242,6 +242,7 @@ func (f *FileLogger) split() {
 
 	case SplitType_Daily:
 		logFileBak := logFile + "." + f.date.Format(DATEFORMAT)
+		rmLogFileBak := logFile + "." + f.date.Add(-6*time.Hour*24).Format(DATEFORMAT)
 		if !isExist(logFileBak) && f.isMustSplit() {
 			if f.logFile != nil {
 				f.logFile.Close()
@@ -250,6 +251,9 @@ func (f *FileLogger) split() {
 			err := os.Rename(logFile, logFileBak)
 			if err != nil {
 				f.lg.Printf("FileLogger rename error: %v", err.Error())
+			}
+			if isExist(rmLogFileBak) {
+				os.Remove(rmLogFileBak)
 			}
 
 			t, _ := time.Parse(DATEFORMAT, time.Now().Format(DATEFORMAT))
